@@ -51,13 +51,13 @@ export class CardController {
   }
 
   @Delete(':cardId')
-  @Roles(UserRole.ADMIN)
-  @ApiOperation({ summary: 'Bloquear una tarjeta [ADMIN]' })
+  @Roles(UserRole.ADMIN, UserRole.CLIENT)
+  @ApiOperation({ summary: 'Bloquear una tarjeta [ADMIN / CLIENT]' })
   @ApiParam({ name: 'cardId', example: '1020301234567801', description: 'Número de la tarjeta a bloquear' })
   @ApiResponse({ status: 200, description: 'Tarjeta bloqueada exitosamente' })
   @ApiResponse({ status: 404, description: 'Tarjeta no encontrada' })
   @ApiResponse({ status: 401, description: 'No autorizado / Falta x-api-key' })
-  @ApiResponse({ status: 403, description: 'Acceso denegado (requiere rol ADMIN)' })
+  @ApiResponse({ status: 403, description: 'Acceso denegado' })
   async blockCard(@Param('cardId') cardId: string) {
     return await this.cardService.blockCard(cardId);
   }

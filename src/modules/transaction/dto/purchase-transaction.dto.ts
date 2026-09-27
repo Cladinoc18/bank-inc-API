@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsNotEmpty, IsNumber, IsPositive, IsString, Length, Matches } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, Length, Matches } from 'class-validator';
 
 export class PurchaseTransactionDto {
   @ApiProperty({
@@ -21,4 +21,16 @@ export class PurchaseTransactionDto {
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'El precio debe ser un número válido' })
   @IsPositive({ message: 'El precio de compra debe ser un valor positivo mayor a cero' })
   price: number;
+
+  @ApiProperty({
+    example: '1234',
+    description: 'PIN de seguridad de 4 dígitos de la tarjeta',
+    required: false,
+    default: '1234',
+  })
+  @IsOptional()
+  @IsString({ message: 'El PIN debe ser un texto de 4 dígitos' })
+  @Length(4, 4, { message: 'El PIN debe contener exactamente 4 dígitos' })
+  @Matches(/^\d{4}$/, { message: 'El PIN debe contener únicamente dígitos numéricos' })
+  pin?: string;
 }

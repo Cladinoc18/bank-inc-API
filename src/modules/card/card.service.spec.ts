@@ -124,6 +124,27 @@ describe('CardService', () => {
       expect(mockCardRepository.save).toHaveBeenCalled();
     });
 
+    it('debe asignar el PIN personalizado si se proporciona en enrollCard', async () => {
+      const existingCard = {
+        cardId: '1020301234567801',
+        isEnrolled: false,
+        isBlocked: false,
+        client: null,
+        pin: '1234',
+      };
+      const existingClient = { id: 'client-1', firstName: 'Juan', lastName: 'Pérez' };
+      mockCardRepository.findOne.mockResolvedValue(existingCard);
+      mockClientRepository.findOne.mockResolvedValue(existingClient);
+
+      const result = await service.enrollCard({
+        cardId: '1020301234567801',
+        clientId: 'client-1',
+        pin: '5678',
+      });
+
+      expect(result.pin).toBe('5678');
+    });
+
     it('debe lanzar NotFoundException si la tarjeta no existe', async () => {
       mockCardRepository.findOne.mockResolvedValue(null);
 

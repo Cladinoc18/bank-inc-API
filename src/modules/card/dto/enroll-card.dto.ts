@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, Length, Matches } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, Length, Matches } from 'class-validator';
 
 export class EnrollCardDto {
   @ApiProperty({
@@ -19,4 +19,16 @@ export class EnrollCardDto {
   @IsString({ message: 'El clientId debe ser un texto' })
   @IsNotEmpty({ message: 'El clientId es obligatorio para asignar la tarjeta y activarla' })
   clientId: string;
+
+  @ApiProperty({
+    example: '1234',
+    description: 'PIN de seguridad de 4 dígitos numéricos para compras (opcional, por defecto: "1234")',
+    required: false,
+    default: '1234',
+  })
+  @IsOptional()
+  @IsString({ message: 'El PIN debe ser un texto de 4 dígitos' })
+  @Length(4, 4, { message: 'El PIN debe contener exactamente 4 dígitos' })
+  @Matches(/^\d{4}$/, { message: 'El PIN debe contener únicamente dígitos numéricos' })
+  pin?: string;
 }

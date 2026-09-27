@@ -140,14 +140,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cardId\": \"{{cardId}}\",\n  \"clientId\": \"{{clientId}}\"\n}"
+              "raw": "{\n  \"cardId\": \"{{cardId}}\",\n  \"clientId\": \"{{clientId}}\",\n  \"pin\": \"1234\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/card/enroll",
               "host": ["{{baseUrl}}"],
               "path": ["card", "enroll"]
             },
-            "description": "Asigna el cliente a la tarjeta completando el nombre del titular y activando la tarjeta para que pueda operar."
+            "description": "Asigna el cliente a la tarjeta completando el nombre del titular, asignando el PIN de seguridad y activando la tarjeta para que pueda operar."
           },
           "response": []
         },
@@ -220,13 +220,13 @@
           "response": []
         },
         {
-          "name": "6. Bloquear tarjeta [ADMIN]",
+          "name": "6. Bloquear tarjeta [ADMIN / CLIENT]",
           "request": {
             "method": "DELETE",
             "header": [
               {
                 "key": "x-api-key",
-                "value": "{{adminApiKey}}",
+                "value": "{{clientApiKey}}",
                 "type": "text"
               }
             ],
@@ -235,7 +235,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["card", "{{cardId}}"]
             },
-            "description": "Bloquea la tarjeta impidiendo que se realicen futuras recargas o transacciones."
+            "description": "Bloquea la tarjeta impidiendo que se realicen futuras recargas o transacciones. Puede ser ejecutado por el tarjetahabiente (CLIENT) o por el administrador (ADMIN)."
           },
           "response": []
         }
@@ -261,14 +261,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cardId\": \"{{cardId}}\",\n  \"price\": 100\n}"
+              "raw": "{\n  \"cardId\": \"{{cardId}}\",\n  \"price\": 100,\n  \"pin\": \"1234\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/transaction/purchase",
               "host": ["{{baseUrl}}"],
               "path": ["transaction", "purchase"]
             },
-            "description": "Realiza una compra descontando el saldo de manera transaccional ACID, validando estado activo, no bloqueado, vigencia y fondos."
+            "description": "Realiza una compra descontando el saldo de manera transaccional ACID, validando estado activo, no bloqueado, vigencia, PIN de seguridad de 4 dígitos y fondos."
           },
           "response": []
         },

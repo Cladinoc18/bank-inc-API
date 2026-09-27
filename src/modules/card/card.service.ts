@@ -95,6 +95,9 @@ export class CardService {
     card.client = client;
     card.cardholderName = `${client.firstName} ${client.lastName}`.trim();
     card.isEnrolled = true;
+    if (enrollCardDto.pin) {
+      card.pin = enrollCardDto.pin;
+    }
 
     const savedCard = await this.cardRepository.save(card);
     this.logger.log(`Tarjeta ${card.cardId} asignada al cliente ${client.id} y activada exitosamente`);

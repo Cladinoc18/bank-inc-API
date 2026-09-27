@@ -30,13 +30,14 @@ Bank Inc es una entidad que asigna tarjetas débito o crédito a clientes para c
 
 ### Reglas de Negocio
 1. **Emisión de Tarjeta**: Generación del número único de 16 dígitos a partir del `productId` mediante `GET /card/{productId}/number`.
-2. **Asignación y Activación (Enroll)**: Para poder operar, la tarjeta debe vincularse a un cliente existente en la base de datos mediante `POST /card/enroll`, quedando con todos sus datos completos.
-3. **Bloqueo**: Mediante `DELETE /card/{cardId}`, los administradores pueden bloquear una tarjeta ante sospechas o inconsistencias.
+2. **Asignación y Activación (Enroll)**: Para poder operar, la tarjeta debe vincularse a un cliente existente mediante `POST /card/enroll { cardId, clientId, pin }`, asignando el titular y configurando su **PIN de seguridad de 4 dígitos** (por defecto `1234`).
+3. **Bloqueo**: Mediante `DELETE /card/{cardId}`, tanto el **administrador** (por inconsistencias) como el **tarjetahabiente / CLIENT** (por pérdida o prevención) pueden bloquear la tarjeta.
 4. **Recarga de Saldo**: `POST /card/balance` permite recargar fondos atómicamente a tarjetas no bloqueadas.
 5. **Compras**: `POST /transaction/purchase` descuenta saldo atómicamente si:
    - La tarjeta existe y está activa (`isEnrolled = true`).
    - La tarjeta no está bloqueada (`isBlocked = false`).
    - La tarjeta está vigente (fecha actual <= vencimiento).
+   - El **PIN de seguridad de 4 dígitos** coincide con el de la tarjeta.
    - Hay saldo suficiente disponible (saldo disponible >= precio).
 6. **Anulación de Transacción**: `POST /transaction/anulation` permite reversar una compra y restituir el saldo si:
    - La transacción existe y pertenece a la tarjeta.

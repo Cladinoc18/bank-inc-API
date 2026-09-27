@@ -77,9 +77,10 @@ describe('TransactionService', () => {
       isBlocked: false,
       expirationDate: '12/2029',
       client: { id: 'client-1' },
+      pin: '1234',
     };
 
-    it('debe ejecutar la compra exitosamente descontando saldo', async () => {
+    it('debe ejecutar la compra exitosamente descontando saldo con PIN correcto', async () => {
       mockQueryRunner.manager.findOne
         .mockResolvedValueOnce({ ...validCard }) // find card
         .mockResolvedValueOnce(null); // uniqueness check for txId
@@ -87,6 +88,7 @@ describe('TransactionService', () => {
       const result = await service.purchase({
         cardId: '1020301234567801',
         price: 100,
+        pin: '1234',
       });
 
       expect(result.price).toBe(100);
@@ -96,11 +98,47 @@ describe('TransactionService', () => {
       expect(mockQueryRunner.release).toHaveBeenCalled();
     });
 
+    it('debe lanzar BadRequestException si el PIN es incorrecto', async () => {
+      mockQueryRunner.manager.findOne.mockResolvedValueOnce({
+        ...validCard,
+      });
+
+      await expect(
+        service.purchase({ cardId: '1020301234567801', price: 100, pin: '9999' }),
+      ).rejects.toThrow('El PIN de seguridad ingresado es incorrecto');
+    });
+
+    it('debe lanzar BadRequestException si falta el PIN cuando la seguridad está habilitada', async () => {
+      process.env.SECURITY_ENABLED = 'true';
+      mockQueryRunner.manager.findOne.mockResolvedValueOnce({
+        ...validCard,
+      });
+
+      await expect(
+        service.purchase({ cardId: '1020301234567801', price: 100 }),
+      ).rejects.toThrow('El PIN de seguridad de la tarjeta es obligatorio');
+    });
+
+    it('debe permitir la compra sin PIN si SECURITY_ENABLED es false', async () => {
+      process.env.SECURITY_ENABLED = 'false';
+      mockQueryRunner.manager.findOne
+        .mockResolvedValueOnce({ ...validCard })
+        .mockResolvedValueOnce(null);
+
+      const result = await service.purchase({
+        cardId: '1020301234567801',
+        price: 50,
+      });
+
+      expect(result.price).toBe(50);
+      process.env.SECURITY_ENABLED = 'true';
+    });
+
     it('debe lanzar NotFoundException si la tarjeta no existe', async () => {
       mockQueryRunner.manager.findOne.mockResolvedValueOnce(null);
 
       await expect(
-        service.purchase({ cardId: '0000000000000000', price: 100 }),
+        service.purchase({ cardId: '0000000000000000', price: 100, pin: '1234' }),
       ).rejects.toThrow(NotFoundException);
       expect(mockQueryRunner.rollbackTransaction).toHaveBeenCalled();
     });
@@ -112,7 +150,7 @@ describe('TransactionService', () => {
       });
 
       await expect(
-        service.purchase({ cardId: '1020301234567801', price: 100 }),
+        service.purchase({ cardId: '1020301234567801', price: 100, pin: '1234' }),
       ).rejects.toThrow('La tarjeta no ha sido activada en el proceso de emisión');
       expect(mockQueryRunner.rollbackTransaction).toHaveBeenCalled();
     });
@@ -124,7 +162,7 @@ describe('TransactionService', () => {
       });
 
       await expect(
-        service.purchase({ cardId: '1020301234567801', price: 100 }),
+        service.purchase({ cardId: '1020301234567801', price: 100, pin: '1234' }),
       ).rejects.toThrow('La tarjeta se encuentra bloqueada para transacciones');
       expect(mockQueryRunner.rollbackTransaction).toHaveBeenCalled();
     });
@@ -136,7 +174,7 @@ describe('TransactionService', () => {
       });
 
       await expect(
-        service.purchase({ cardId: '1020301234567801', price: 100 }),
+        service.purchase({ cardId: '1020301234567801', price: 100, pin: '1234' }),
       ).rejects.toThrow('La tarjeta no tiene un cliente asignado');
     });
 
@@ -147,7 +185,7 @@ describe('TransactionService', () => {
       });
 
       await expect(
-        service.purchase({ cardId: '1020301234567801', price: 100 }),
+        service.purchase({ cardId: '1020301234567801', price: 100, pin: '1234' }),
       ).rejects.toThrow('La tarjeta se encuentra vencida');
     });
 
@@ -158,7 +196,7 @@ describe('TransactionService', () => {
       });
 
       await expect(
-        service.purchase({ cardId: '1020301234567801', price: 100 }),
+        service.purchase({ cardId: '1020301234567801', price: 100, pin: '1234' }),
       ).rejects.toThrow('Saldo insuficiente para realizar la compra');
     });
   });

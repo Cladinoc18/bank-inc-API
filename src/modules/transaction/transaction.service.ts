@@ -70,6 +70,19 @@ export class TransactionService {
         );
       }
 
+      // Validación de PIN de seguridad
+      const isSecurityEnabled = process.env.SECURITY_ENABLED !== 'false';
+      if (isSecurityEnabled || purchaseTransactionDto.pin) {
+        if (!purchaseTransactionDto.pin) {
+          throw new BadRequestException(
+            'El PIN de seguridad de la tarjeta es obligatorio para realizar compras',
+          );
+        }
+        if (card.pin && card.pin !== purchaseTransactionDto.pin) {
+          throw new BadRequestException('El PIN de seguridad ingresado es incorrecto');
+        }
+      }
+
       const currentBalance = Number(card.balance);
       const purchasePrice = Number(price);
 
