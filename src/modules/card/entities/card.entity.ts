@@ -51,6 +51,9 @@ export class Card {
   @Column({ name: 'security_pin', length: 4, default: '1234' })
   pin: string;
 
+  @Column({ name: 'client_id', nullable: true })
+  clientId: string | null;
+
   @ManyToOne(() => Client, (client) => client.cards, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'client_id' })
   client: Client | null;

@@ -93,6 +93,7 @@ export class CardService {
     }
 
     card.client = client;
+    card.clientId = client.id;
     card.cardholderName = `${client.firstName} ${client.lastName}`.trim();
     card.isEnrolled = true;
     if (enrollCardDto.pin) {

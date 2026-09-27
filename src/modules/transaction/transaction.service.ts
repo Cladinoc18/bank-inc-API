@@ -44,7 +44,6 @@ export class TransactionService {
     try {
       const card = await queryRunner.manager.findOne(Card, {
         where: { cardId },
-        relations: ['client'],
         lock: { mode: 'pessimistic_write' },
       });
 
@@ -60,7 +59,7 @@ export class TransactionService {
         throw new BadRequestException('La tarjeta se encuentra bloqueada para transacciones');
       }
 
-      if (!card.client) {
+      if (!card.clientId && !card.client) {
         throw new BadRequestException('La tarjeta no tiene un cliente asignado');
       }
 
