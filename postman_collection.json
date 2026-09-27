@@ -1,14 +1,29 @@
 {
   "info": {
     "_postman_id": "b71e1948-c89b-4e08-9df2-9b2401f89312",
-    "name": "Bank Inc API - CredibanCo",
-    "description": "Colección completa de pruebas para la API bancaria de Bank Inc (CredibanCo). Incluye emisión, enrolamiento, bloqueo, recarga, consulta de saldo, compras, consulta de transacciones y anulación.",
+    "name": "Bank Inc API - CredibanCo (Con Seguridad RBAC)",
+    "description": "Colección completa de pruebas para la API bancaria de Bank Inc (CredibanCo). Incluye emisión, enrolamiento, bloqueo, recarga, consulta de saldo, compras, consulta de transacciones, anulación y autenticación de canales por API Keys.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     {
       "key": "baseUrl",
       "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "adminApiKey",
+      "value": "admin-bank-key-123",
+      "type": "string"
+    },
+    {
+      "key": "clientApiKey",
+      "value": "client-app-key-789",
+      "type": "string"
+    },
+    {
+      "key": "merchantApiKey",
+      "value": "merchant-pos-key-456",
       "type": "string"
     },
     {
@@ -34,13 +49,19 @@
   ],
   "item": [
     {
-      "name": "01. Clientes (Seed / Gestión)",
+      "name": "01. Clientes (Seed / Gestión - Canal ADMIN)",
       "item": [
         {
           "name": "Listar Clientes (Obtener clientId semilla)",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{adminApiKey}}",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/client",
               "host": ["{{baseUrl}}"],
@@ -58,6 +79,11 @@
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "x-api-key",
+                "value": "{{adminApiKey}}",
+                "type": "text"
               }
             ],
             "body": {
@@ -78,10 +104,16 @@
       "name": "02. Tarjetas (/card)",
       "item": [
         {
-          "name": "1. Generar número de tarjeta",
+          "name": "1. Generar número de tarjeta [ADMIN]",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{adminApiKey}}",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/card/{{productId}}/number",
               "host": ["{{baseUrl}}"],
@@ -92,13 +124,18 @@
           "response": []
         },
         {
-          "name": "2. Activar tarjeta (Enroll con Cliente)",
+          "name": "2. Activar tarjeta (Enroll con Cliente) [ADMIN]",
           "request": {
             "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "x-api-key",
+                "value": "{{adminApiKey}}",
+                "type": "text"
               }
             ],
             "body": {
@@ -115,10 +152,16 @@
           "response": []
         },
         {
-          "name": "3. Consultar detalle de la tarjeta",
+          "name": "3. Consultar detalle de la tarjeta [ADMIN / CLIENT]",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{adminApiKey}}",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/card/{{cardId}}",
               "host": ["{{baseUrl}}"],
@@ -129,13 +172,18 @@
           "response": []
         },
         {
-          "name": "4. Recargar saldo",
+          "name": "4. Recargar saldo [CLIENT]",
           "request": {
             "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "x-api-key",
+                "value": "{{clientApiKey}}",
+                "type": "text"
               }
             ],
             "body": {
@@ -152,10 +200,16 @@
           "response": []
         },
         {
-          "name": "5. Consulta de saldo",
+          "name": "5. Consulta de saldo [CLIENT]",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{clientApiKey}}",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/card/balance/{{cardId}}",
               "host": ["{{baseUrl}}"],
@@ -166,10 +220,16 @@
           "response": []
         },
         {
-          "name": "6. Bloquear tarjeta",
+          "name": "6. Bloquear tarjeta [ADMIN]",
           "request": {
             "method": "DELETE",
-            "header": [],
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{adminApiKey}}",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/card/{{cardId}}",
               "host": ["{{baseUrl}}"],
@@ -185,13 +245,18 @@
       "name": "03. Transacciones (/transaction)",
       "item": [
         {
-          "name": "1. Transacción de compra",
+          "name": "1. Transacción de compra [CLIENT]",
           "request": {
             "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "x-api-key",
+                "value": "{{clientApiKey}}",
+                "type": "text"
               }
             ],
             "body": {
@@ -208,10 +273,16 @@
           "response": []
         },
         {
-          "name": "2. Consultar transacción por ID",
+          "name": "2. Consultar transacción por ID [MERCHANT / CLIENT]",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{merchantApiKey}}",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/transaction/{{transactionId}}",
               "host": ["{{baseUrl}}"],
@@ -222,13 +293,18 @@
           "response": []
         },
         {
-          "name": "3. Anulación de transacción",
+          "name": "3. Anulación de transacción [MERCHANT]",
           "request": {
             "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "x-api-key",
+                "value": "{{merchantApiKey}}",
+                "type": "text"
               }
             ],
             "body": {

@@ -249,6 +249,31 @@ El repositorio incluye un `Dockerfile` multi-stage optimizado:
 
 ---
 
+## 🔐 Seguridad Bancaria y Canales de Acceso (RBAC)
+
+Para cumplir con los más altos estándares del sector financiero (PCI-DSS / ISO-27001), la API implementa un modelo de **Control de Acceso Basado en Roles por Canales (RBAC)** a través del header HTTP `x-api-key`:
+
+```mermaid
+graph TD
+    subgraph Canales de Bank Inc
+        A["Canal ADMIN (Backoffice)\nx-api-key: admin-bank-key-123"] -->|Acceso Total y Exclusivo| B["Emisión (/card/:productId/number)\nEnrolamiento (/card/enroll)\nBloqueo (/card/:id)\nGestión Clientes (/client)"]
+        C["Canal CLIENT (Banca Móvil)\nx-api-key: client-app-key-789"] -->|Operaciones del Tarjetahabiente| D["Compras (/transaction/purchase)\nRecarga de Saldo (/card/balance)\nConsulta Saldo (/card/balance/:id)"]
+        E["Canal MERCHANT (Comercio/Pasarela)\nx-api-key: merchant-pos-key-456"] -->|Operaciones del Establecimiento| F["Anulación Transacción (/transaction/anulation)\nConsulta Transacción (/transaction/:id)"]
+    end
+```
+
+### Llaves Preconfiguradas (para Swagger y Postman)
+| Canal | Rol | Clave `x-api-key` | Operaciones Permitidas |
+| :--- | :--- | :--- | :--- |
+| **Backoffice Bancario** | `ADMIN` | `admin-bank-key-123` | **Superusuario: Tiene acceso total a todos los endpoints** (emisión, bloqueo, auditoría). |
+| **Tarjetahabiente / App** | `CLIENT` | `client-app-key-789` | Compras (`/transaction/purchase`), Recargas de saldo y Consulta de saldo. |
+| **Comercio / Datáfono** | `MERCHANT` | `merchant-pos-key-456` | Anulación de compras (`/transaction/anulation`) y consulta de transacciones. |
+
+> 💡 **Nota de Compatibilidad**: Si se requiere ejecutar suites de prueba automatizadas externas que no envíen headers, la seguridad puede desactivarse dinámicamente configurando en el `.env`:
+> `SECURITY_ENABLED=false`
+
+---
+
 ## ☕ Guía de Migración a Java Spring Boot
 
 Dado que el objetivo es migrar posteriormente a Java / Spring Boot, la estructura fue diseñada en concordancia directa 1 a 1:
@@ -264,4 +289,5 @@ Dado que el objetivo es migrar posteriormente a Java / Spring Boot, la estructur
 | `Client.entity.ts` | `@Entity @Table(name = "clients")` | Entidad de clientes |
 | `CardRepository` | `public interface CardRepository extends JpaRepository<Card, String>` | Persistencia de datos |
 | DTOs (`class-validator`) | Records / Clases con `@Valid`, `@NotBlank`, `@Size` | Validación de entradas con Jakarta Validation |
-| `AllExceptionsFilter.ts` | `@RestControllerAdvice` con `@ExceptionHandler` | Manejo global de excepciones |
+| `ApiKeyGuard.ts` | `OncePerRequestFilter` / `SecurityFilterChain` | Filtro de seguridad bancaria HTTP |
+| `@Roles(UserRole.ADMIN)` | `@PreAuthorize("hasRole('ADMIN')")` | Autorización granular en métodos |

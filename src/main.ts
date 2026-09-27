@@ -30,6 +30,16 @@ async function bootstrap() {
     .addTag('Cards', 'Emisión, activación, bloqueo, recarga y consulta de tarjetas')
     .addTag('Transactions', 'Procesamiento de compras, consulta y anulación de transacciones')
     .addTag('Clients', 'Gestión de clientes titulares del banco')
+    .addApiKey(
+      {
+        type: 'apiKey',
+        name: 'x-api-key',
+        in: 'header',
+        description:
+          'Ingresa la clave de canal: "admin-bank-key-123" (Admin), "client-app-key-789" (Client), o "merchant-pos-key-456" (Merchant)',
+      },
+      'x-api-key',
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

@@ -37,6 +37,10 @@ services:
       DB_NAME: ${DB_NAME:-bank_inc_db}
       DB_SYNCHRONIZE: "true"
       DB_LOGGING: "false"
+      SECURITY_ENABLED: ${SECURITY_ENABLED:-true}
+      API_KEY_ADMIN: ${API_KEY_ADMIN:-admin-bank-key-123}
+      API_KEY_CLIENT: ${API_KEY_CLIENT:-client-app-key-789}
+      API_KEY_MERCHANT: ${API_KEY_MERCHANT:-merchant-pos-key-456}
     ports:
       - "3000:3000"
 
