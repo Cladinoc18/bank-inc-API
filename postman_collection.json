@@ -1,0 +1,250 @@
+{
+  "info": {
+    "_postman_id": "b71e1948-c89b-4e08-9df2-9b2401f89312",
+    "name": "Bank Inc API - CredibanCo",
+    "description": "Colección completa de pruebas para la API bancaria de Bank Inc (CredibanCo). Incluye emisión, enrolamiento, bloqueo, recarga, consulta de saldo, compras, consulta de transacciones y anulación.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "productId",
+      "value": "102030",
+      "type": "string"
+    },
+    {
+      "key": "cardId",
+      "value": "1020301234567801",
+      "type": "string"
+    },
+    {
+      "key": "clientId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "transactionId",
+      "value": "102030",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01. Clientes (Seed / Gestión)",
+      "item": [
+        {
+          "name": "Listar Clientes (Obtener clientId semilla)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/client",
+              "host": ["{{baseUrl}}"],
+              "path": ["client"]
+            },
+            "description": "Retorna los clientes existentes, incluyendo el cliente semilla inicial (Juan Pérez) para usar su ID en el enroll de tarjeta."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear Nuevo Cliente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Carlos\",\n  \"lastName\": \"Rodríguez\",\n  \"documentNumber\": \"1098765432\",\n  \"email\": \"carlos.rodriguez@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/client",
+              "host": ["{{baseUrl}}"],
+              "path": ["client"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02. Tarjetas (/card)",
+      "item": [
+        {
+          "name": "1. Generar número de tarjeta",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/card/{{productId}}/number",
+              "host": ["{{baseUrl}}"],
+              "path": ["card", "{{productId}}", "number"]
+            },
+            "description": "Genera una tarjeta de 16 dígitos a partir del productId de 6 dígitos. La tarjeta nace inactiva y con saldo 0."
+          },
+          "response": []
+        },
+        {
+          "name": "2. Activar tarjeta (Enroll con Cliente)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cardId\": \"{{cardId}}\",\n  \"clientId\": \"{{clientId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/card/enroll",
+              "host": ["{{baseUrl}}"],
+              "path": ["card", "enroll"]
+            },
+            "description": "Asigna el cliente a la tarjeta completando el nombre del titular y activando la tarjeta para que pueda operar."
+          },
+          "response": []
+        },
+        {
+          "name": "3. Consultar detalle de la tarjeta",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/card/{{cardId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["card", "{{cardId}}"]
+            },
+            "description": "Permite verificar que la tarjeta tenga todos los campos asignados y completos (titular, vencimiento, estado, etc.)."
+          },
+          "response": []
+        },
+        {
+          "name": "4. Recargar saldo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cardId\": \"{{cardId}}\",\n  \"balance\": \"10000\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/card/balance",
+              "host": ["{{baseUrl}}"],
+              "path": ["card", "balance"]
+            },
+            "description": "Recarga el saldo de la tarjeta en dólares USD de forma atómica."
+          },
+          "response": []
+        },
+        {
+          "name": "5. Consulta de saldo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/card/balance/{{cardId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["card", "balance", "{{cardId}}"]
+            },
+            "description": "Consulta el saldo disponible y estado de la tarjeta."
+          },
+          "response": []
+        },
+        {
+          "name": "6. Bloquear tarjeta",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/card/{{cardId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["card", "{{cardId}}"]
+            },
+            "description": "Bloquea la tarjeta impidiendo que se realicen futuras recargas o transacciones."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03. Transacciones (/transaction)",
+      "item": [
+        {
+          "name": "1. Transacción de compra",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cardId\": \"{{cardId}}\",\n  \"price\": 100\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/transaction/purchase",
+              "host": ["{{baseUrl}}"],
+              "path": ["transaction", "purchase"]
+            },
+            "description": "Realiza una compra descontando el saldo de manera transaccional ACID, validando estado activo, no bloqueado, vigencia y fondos."
+          },
+          "response": []
+        },
+        {
+          "name": "2. Consultar transacción por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/transaction/{{transactionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["transaction", "{{transactionId}}"]
+            },
+            "description": "Obtiene el detalle completo de la transacción realizada."
+          },
+          "response": []
+        },
+        {
+          "name": "3. Anulación de transacción",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cardId\": \"{{cardId}}\",\n  \"transactionId\": \"{{transactionId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/transaction/anulation",
+              "host": ["{{baseUrl}}"],
+              "path": ["transaction", "anulation"]
+            },
+            "description": "Anula la transacción si tiene menos de 24 horas y reintegra el dinero inmediatamente al saldo disponible de la tarjeta."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
