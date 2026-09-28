@@ -1,10 +1,10 @@
-# Bank Inc - API REST de Gestión de Tarjetas y Transacciones
+# Bank Inc - API REST
 
-API bancaria desarrollada con **NestJS**, **TypeScript**, **TypeORM** y **PostgreSQL**, diseñada siguiendo una arquitectura en capas alineada con las mejores prácticas empresariales (Spring-aligned architecture) para facilitar una migración limpia 1 a 1 a Java / Spring Boot.
+API bancaria desarrollada con **NestJS**, **TypeScript**, **TypeORM** y **PostgreSQL**, diseñada siguiendo una arquitectura en capas alineada con las buenas prácticas con la idea de facilitar una migración a Java / Spring Boot.
 
 ---
 
-## 📋 Tabla de Contenidos
+## Tabla de Contenidos
 1. [Descripción del Negocio y Requerimientos](#-descripción-del-negocio-y-requerimientos)
 2. [Arquitectura y Estructura del Proyecto](#-arquitectura-y-estructura-del-proyecto)
 3. [Modelo de Base de Datos Relacional](#-modelo-de-base-de-datos-relacional)
@@ -12,12 +12,10 @@ API bancaria desarrollada con **NestJS**, **TypeScript**, **TypeORM** y **Postgr
 5. [Guía de Ejecución Local y Docker](#-guía-de-ejecución-local-y-docker)
 6. [Documentación de la API (Swagger y Postman)](#-documentación-de-la-api-swagger-y-postman)
 7. [Pruebas Unitarias y Cobertura (>= 80%)](#-pruebas-unitarias-y-cobertura--80)
-8. [Despliegue Cloud (AWS / GCP / Render / Railway)](#-despliegue-cloud-aws--gcp--render--railway)
-9. [Guía de Migración a Java Spring Boot](#-guía-de-migración-a-java-spring-boot)
 
 ---
 
-## 🏦 Descripción del Negocio y Requerimientos
+## Descripción del Negocio y Requerimientos
 
 Bank Inc es una entidad que asigna tarjetas débito o crédito a clientes para compras en comercios asociados, manejando transacciones en **USD ($)**.
 
@@ -46,9 +44,9 @@ Bank Inc es una entidad que asigna tarjetas débito o crédito a clientes para c
 
 ---
 
-## 🏗 Arquitectura y Estructura del Proyecto
+## Arquitectura y Estructura del Proyecto
 
-El proyecto implementa una arquitectura modular en capas que refleja con precisión los patrones de **Spring Boot**:
+El proyecto implementa una arquitectura modular en capas:
 
 ```
 src/
@@ -82,7 +80,7 @@ src/
 
 ---
 
-## 🗄 Modelo de Base de Datos Relacional
+## Modelo de Base de Datos Relacional
 
 ```mermaid
 erDiagram
@@ -125,56 +123,20 @@ erDiagram
 
 ---
 
-## 🔄 Flujos de Datos (Diagramas Mermaid)
+## Flujos de Datos (Diagramas Mermaid)
 
 ### Flujo de Emisión y Activación de Tarjeta
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Commercio as Cliente / Comercio
-    participant API as Bank Inc API
-    participant DB as PostgreSQL
 
-    Commercio->>API: GET /card/{productId}/number
-    API->>DB: INSERT Card (16 dígitos, MM/YYYY, saldo 0, inactive)
-    DB-->>API: Card creada
-    API-->>Commercio: { cardNumber: "1020301234567801" }
+<img width="761" height="603" alt="Diagrama1" src="https://github.com/user-attachments/assets/0d380bcf-6ba9-4b97-b6c6-7bb31f23098c" />
 
-    Commercio->>API: POST /card/enroll { cardId, clientId }
-    API->>DB: SELECT Client & SELECT Card
-    API->>DB: UPDATE Card SET client_id = clientId, is_enrolled = true
-    API-->>Commercio: { cardId, cardholderName, isEnrolled: true, ... }
-```
 
 ### Flujo de Compra y Anulación (< 24 Horas)
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Tarjetahabiente as Tarjetahabiente
-    participant API as Bank Inc API
-    participant DB as PostgreSQL (ACID)
 
-    Tarjetahabiente->>API: POST /transaction/purchase { cardId, price }
-    API->>DB: BEGIN TRANSACTION (Pessimistic Lock en Card)
-    Note over API,DB: Validar vigencia, activación, bloqueo y fondos
-    API->>DB: UPDATE Card SET balance = balance - price
-    API->>DB: INSERT Transaction (status: APPROVED)
-    API->>DB: COMMIT TRANSACTION
-    API-->>Tarjetahabiente: { transactionId: "102030", status: "APPROVED", remainingBalance }
-
-    Note over Tarjetahabiente,API: Si requiere anular dentro de 24 horas:
-    Tarjetahabiente->>API: POST /transaction/anulation { cardId, transactionId }
-    API->>DB: BEGIN TRANSACTION
-    Note over API,DB: Validar edad <= 24h y estado no anulado
-    API->>DB: UPDATE Card SET balance = balance + price
-    API->>DB: UPDATE Transaction SET status = ANNULLED
-    API->>DB: COMMIT TRANSACTION
-    API-->>Tarjetahabiente: { message: "Transacción anulada", refundedAmount, newBalance }
-```
+<img width="761" height="703" alt="Diagrama2" src="https://github.com/user-attachments/assets/d773fa96-6217-4fc2-9d4a-d12c7d3e10e0" />
 
 ---
 
-## 🚀 Guía de Ejecución Local y Docker
+## Guía de Ejecución Local y Docker
 
 ### Opción 1: Ejecución con Docker Compose (Recomendada - 1 Solo Comando)
 Requiere tener instalado **Docker** y **Docker Compose**:
@@ -210,11 +172,11 @@ Esto levantará:
 
 ---
 
-## 📚 Documentación de la API (Swagger y Postman)
+## Documentación de la API (Swagger y Postman)
 
 ### Swagger / OpenAPI Interactivo
 Una vez levantada la aplicación, accede a la interfaz interactiva en:
-👉 **[http://localhost:3000/api/docs](http://localhost:3000/api/docs)**
+**[http://localhost:3000/api/docs](http://localhost:3000/api/docs)**
 
 ### Colección de Postman
 En la raíz del proyecto se encuentra el archivo `postman_collection.json` con todos los endpoints organizados y variables de entorno configuradas:
@@ -224,7 +186,7 @@ En la raíz del proyecto se encuentra el archivo `postman_collection.json` con t
 
 ---
 
-## 🧪 Pruebas Unitarias y Cobertura (>= 80%)
+## Pruebas Unitarias y Cobertura (>= 80%)
 
 Para ejecutar la suite completa de pruebas unitarias con Jest:
 
@@ -242,53 +204,20 @@ La suite cubre:
 
 ---
 
-## ☁ Despliegue Cloud (AWS / GCP / Render / Railway)
+## Seguridad Bancaria y Canales de Acceso (RBAC)
 
-El repositorio incluye un `Dockerfile` multi-stage optimizado:
-- **AWS App Runner / ECS**: Conectar al repositorio, utilizar el Dockerfile o la imagen compilada y configurar las variables de entorno para una base de datos Amazon RDS PostgreSQL.
-- **Render / Railway**: Despliegue directo con un clic vinculando el repositorio y agregando el servicio PostgreSQL administrado.
+Para cumplir con estándares de seguridad, la API implementa un modelo de **Control de Acceso Basado en Roles por Canales (RBAC)** a través del header HTTP `x-api-key`:
 
----
-
-## 🔐 Seguridad Bancaria y Canales de Acceso (RBAC)
-
-Para cumplir con los más altos estándares del sector financiero (PCI-DSS / ISO-27001), la API implementa un modelo de **Control de Acceso Basado en Roles por Canales (RBAC)** a través del header HTTP `x-api-key`:
-
-```mermaid
-graph TD
-    subgraph Canales de Bank Inc
-        A["Canal ADMIN (Backoffice)\nx-api-key: admin-bank-key-123"] -->|Acceso Total y Exclusivo| B["Emisión (/card/:productId/number)\nEnrolamiento (/card/enroll)\nBloqueo (/card/:id)\nGestión Clientes (/client)"]
-        C["Canal CLIENT (Banca Móvil)\nx-api-key: client-app-key-789"] -->|Operaciones del Tarjetahabiente| D["Compras (/transaction/purchase)\nRecarga de Saldo (/card/balance)\nConsulta Saldo (/card/balance/:id)"]
-        E["Canal MERCHANT (Comercio/Pasarela)\nx-api-key: merchant-pos-key-456"] -->|Operaciones del Establecimiento| F["Anulación Transacción (/transaction/anulation)\nConsulta Transacción (/transaction/:id)"]
-    end
-```
 
 ### Llaves Preconfiguradas (para Swagger y Postman)
 | Canal | Rol | Clave `x-api-key` | Operaciones Permitidas |
 | :--- | :--- | :--- | :--- |
-| **Backoffice Bancario** | `ADMIN` | `admin-bank-key-123` | **Superusuario: Tiene acceso total a todos los endpoints** (emisión, bloqueo, auditoría). |
-| **Tarjetahabiente / App** | `CLIENT` | `client-app-key-789` | Compras (`/transaction/purchase`), Recargas de saldo y Consulta de saldo. |
-| **Comercio / Datáfono** | `MERCHANT` | `merchant-pos-key-456` | Anulación de compras (`/transaction/anulation`) y consulta de transacciones. |
+| **Backoffice Bancario** | `ADMIN` | `admin-key-123` | **Superusuario: Tiene acceso total a todos los endpoints** (emisión, bloqueo, auditoría). |
+| **Tarjetahabiente / App** | `CLIENT` | `client-key-456` | Compras (`/transaction/purchase`), Recargas de saldo y Consulta de saldo. |
+| **Comercio / Datáfono** | `MERCHANT` | `merchant-key-789` | Anulación de compras (`/transaction/anulation`) y consulta de transacciones. |
 
-> 💡 **Nota de Compatibilidad**: Si se requiere ejecutar suites de prueba automatizadas externas que no envíen headers, la seguridad puede desactivarse dinámicamente configurando en el `.env`:
+> **Nota de Compatibilidad**: La seguridad puede desactivarse dinámicamente configurando en el `.env`:
 > `SECURITY_ENABLED=false`
 
 ---
 
-## ☕ Guía de Migración a Java Spring Boot
-
-Dado que el objetivo es migrar posteriormente a Java / Spring Boot, la estructura fue diseñada en concordancia directa 1 a 1:
-
-| Componente NestJS | Componente Java / Spring Boot | Propósito |
-| :--- | :--- | :--- |
-| `CardController.ts` | `@RestController @RequestMapping("/card")` | Controladores REST |
-| `TransactionController.ts` | `@RestController @RequestMapping("/transaction")` | Controladores REST |
-| `CardService.ts` | `@Service @Transactional` | Capa de servicio y lógica de negocio |
-| `TransactionService.ts` | `@Service @Transactional` | Capa de transaccionalidad ACID |
-| `Card.entity.ts` | `@Entity @Table(name = "cards")` | Mapeo objeto-relacional (JPA/Hibernate) |
-| `Transaction.entity.ts` | `@Entity @Table(name = "transactions")` | Entidad de transacciones |
-| `Client.entity.ts` | `@Entity @Table(name = "clients")` | Entidad de clientes |
-| `CardRepository` | `public interface CardRepository extends JpaRepository<Card, String>` | Persistencia de datos |
-| DTOs (`class-validator`) | Records / Clases con `@Valid`, `@NotBlank`, `@Size` | Validación de entradas con Jakarta Validation |
-| `ApiKeyGuard.ts` | `OncePerRequestFilter` / `SecurityFilterChain` | Filtro de seguridad bancaria HTTP |
-| `@Roles(UserRole.ADMIN)` | `@PreAuthorize("hasRole('ADMIN')")` | Autorización granular en métodos |
