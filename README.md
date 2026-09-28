@@ -127,12 +127,12 @@ erDiagram
 
 ### Flujo de Emisión y Activación de Tarjeta
 
-<img width="761" height="603" alt="Diagrama1" src="https://github.com/user-attachments/assets/0d380bcf-6ba9-4b97-b6c6-7bb31f23098c" />
+<img width="761" height="603" alt="Diagrama1" src="https://github.com/user-attachments/assets/b5154d65-3641-450e-942d-9cccf4ef249a" />
 
 
 ### Flujo de Compra y Anulación (< 24 Horas)
 
-<img width="761" height="703" alt="Diagrama2" src="https://github.com/user-attachments/assets/d773fa96-6217-4fc2-9d4a-d12c7d3e10e0" />
+<img width="761" height="703" alt="Diagrama2" src="https://github.com/user-attachments/assets/4cb18e48-5d05-42b3-a747-7962f13115a6" />
 
 ---
 
